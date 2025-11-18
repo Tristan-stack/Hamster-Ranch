@@ -11,18 +11,19 @@ API REST pour un jeu d'élevage de hamsters développée avec Symfony 7.3.
 
 ## Installation
 
-### 1. Installer les dépendances
+### 1. Configurer l'environnement
 
 ```bash
-composer install
+cp .env.example .env.local
 ```
 
-### 2. Configurer l'environnement
+### 2. Installer les dépendances
 
 Copiez le fichier `.env.example` vers `.env.local` :
 
 ```bash
 cp .env.example .env.local
+composer install
 ```
 
 Modifiez `.env.local` avec vos paramètres (base de données, passphrase JWT, etc.)
