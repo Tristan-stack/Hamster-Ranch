@@ -180,7 +180,7 @@ final class HamsterController extends AbstractController
         return new JsonResponse(['gold' => $user->getGold()], 200);
     }
 
-    #[Route('/hamster/sleep/{nbDays}', name: 'hamster_sleep', methods: ['POST'])]
+    #[Route('/hamsters/sleep/{nbDays}', name: 'hamster_sleep', methods: ['POST'])]
     public function sleep(int $nbDays): JsonResponse
     {
         $user = $this->getUser();

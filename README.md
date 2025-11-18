@@ -17,13 +17,15 @@ API REST pour un jeu d'élevage de hamsters développée avec Symfony 7.3.
 composer install
 ```
 
-### 2. Configurer la base de données
+### 2. Configurer l'environnement
 
-Créez un fichier `.env.local` et ajoutez :
+Copiez le fichier `.env.example` vers `.env.local` :
 
 ```bash
-DATABASE_URL="mysql://root:password@127.0.0.1:3306/hamsterranch?serverVersion=8.0.32&charset=utf8mb4"
+cp .env.example .env.local
 ```
+
+Modifiez `.env.local` avec vos paramètres (base de données, passphrase JWT, etc.)
 
 ### 3. Générer les clés JWT
 
@@ -39,19 +41,7 @@ openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_
 openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout
 ```
 
-Ajoutez dans `.env.local` :
-
-```bash
-JWT_PASSPHRASE=votre_passphrase_ici
-```
-
-```bash
-JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
-```
-
-```bash
-JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
-```
+**Important** : Utilisez la même passphrase dans `.env.local` que celle utilisée lors de la génération de la clé privée.
 
 ### 4. Créer la base de données
 
