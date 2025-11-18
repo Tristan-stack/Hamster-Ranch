@@ -114,6 +114,72 @@ final class HamsterController extends AbstractController
         return new JsonResponse($json, 201, [], true);
     }
 
+    #[Route('/hamsters/{id}/feed', name: 'hamster_feed', methods: ['POST'])]
+    public function feed(int $id): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return new JsonResponse(['error' => 'Non authentifié'], 401);
+        }
+
+        $hamster = $this->hamsterRepository->find($id);
+
+        if (!$hamster || $hamster->getOwner() !== $user) {
+            return new JsonResponse(['error' => 'Hamster non trouvé ou ne vous appartient pas'], 404);
+        }
+
+        $currentHunger = $hamster->getHunger();
+        $cost = 100 - $currentHunger;
+
+        // Si le hamster a déjà 100 de faim, pas besoin de le nourrir
+        if ($cost <= 0) {
+            return new JsonResponse(['error' => 'Le hamster a déjà 100 de faim'], 400);
+        }
+
+        // Vérifier que l'utilisateur a assez d'argent
+        if ($user->getGold() < $cost) {
+            return new JsonResponse(['error' => 'Pas assez d\'argent'], 400);
+        }
+
+        // Retirer l'argent et nourrir le hamster
+        $user->setGold($user->getGold() - $cost);
+        $hamster->setHunger(100);
+
+        // Vieillir tous les hamsters de 5 jours et leur faire perdre 5 points de faim
+        $this->ageAllHamsters($user);
+
+        $this->entityManager->flush();
+
+        return new JsonResponse(['gold' => $user->getGold()], 200);
+    }
+
+    #[Route('/hamsters/{id}/sell', name: 'hamster_sell', methods: ['POST'])]
+    public function sell(int $id): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return new JsonResponse(['error' => 'Non authentifié'], 401);
+        }
+
+        $hamster = $this->hamsterRepository->find($id);
+
+        if (!$hamster || $hamster->getOwner() !== $user) {
+            return new JsonResponse(['error' => 'Hamster non trouvé ou ne vous appartient pas'], 404);
+        }
+
+        // Vieillir tous les hamsters AVANT de supprimer celui-ci
+        $this->ageAllHamsters($user);
+
+        // Ajouter 300 gold à l'utilisateur
+        $user->setGold($user->getGold() + 300);
+
+        // Supprimer le hamster
+        $this->entityManager->remove($hamster);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['gold' => $user->getGold()], 200);
+    }
+
     private function ageAllHamsters(User $user): void
     {
         foreach ($user->getHamsters() as $hamster) {
