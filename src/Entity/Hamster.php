@@ -36,7 +36,6 @@ class Hamster
     private ?int $active = null;
 
     #[ORM\ManyToOne(inversedBy: 'hamsters')]
-    #[Groups(['read'])]
     private ?User $owner = null;
 
     public function getId(): ?int

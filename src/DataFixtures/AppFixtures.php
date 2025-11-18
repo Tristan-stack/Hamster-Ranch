@@ -40,7 +40,7 @@ class AppFixtures extends Fixture
         $user->setEmail($faker->unique()->email());
         $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
         $user->setRoles($isAdmin ? ['ROLE_ADMIN'] : ['ROLE_USER']);
-        $user->setGold($faker->numberBetween(0, 2000));
+        $user->setGold(500);
 
         $manager->persist($user);
         return $user;
