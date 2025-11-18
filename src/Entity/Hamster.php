@@ -38,6 +38,13 @@ class Hamster
     #[ORM\ManyToOne(inversedBy: 'hamsters')]
     private ?User $owner = null;
 
+    public function __construct()
+    {
+        $this->hunger = 100;
+        $this->age = 0;
+        $this->active = 1;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

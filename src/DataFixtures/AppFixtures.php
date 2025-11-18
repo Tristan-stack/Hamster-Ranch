@@ -50,8 +50,8 @@ class AppFixtures extends Fixture
     {
         $hamster = new Hamster();
         $hamster->setName($genre === 'm' ? $faker->firstNameMale() : $faker->firstNameFemale());
-        $hamster->setHunger($faker->numberBetween(0, 100));
-        $hamster->setAge($faker->numberBetween(0, 400));
+        $hamster->setHunger(100);
+        $hamster->setAge(0);
         $hamster->setGenre($genre);
         $hamster->setActive($faker->boolean(90) ? 1 : 0);
         $hamster->setOwner($owner);
