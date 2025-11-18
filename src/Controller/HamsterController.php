@@ -203,6 +203,39 @@ final class HamsterController extends AbstractController
         return new JsonResponse(['message' => 'Tous les hamsters ont vieilli de ' . $nbDays . ' jours'], 200);
     }
 
+    #[Route('/hamsters/{id}/rename', name: 'hamster_rename', methods: ['PUT'])]
+    public function rename(int $id, Request $request): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return new JsonResponse(['error' => 'Non authentifié'], 401);
+        }
+
+        $hamster = $this->hamsterRepository->find($id);
+
+        if (!$hamster) {
+            return new JsonResponse(['error' => 'Hamster non trouvé'], 404);
+        }
+
+        // Vérifier que l'utilisateur est le propriétaire OU qu'il est admin
+        if ($hamster->getOwner() !== $user && !$this->isGranted('ROLE_ADMIN')) {
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $newName = $data['name'] ?? null;
+
+        if (!$newName || empty(trim($newName))) {
+            return new JsonResponse(['error' => 'Le nom est requis'], 400);
+        }
+
+        $hamster->setName(trim($newName));
+        $this->entityManager->flush();
+
+        $json = $this->serializer->serialize($hamster, 'json', ['groups' => 'read']);
+        return new JsonResponse($json, 200, [], true);
+    }
+
     private function ageAllHamsters(User $user): void
     {
         foreach ($user->getHamsters() as $hamster) {
