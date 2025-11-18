@@ -22,7 +22,6 @@ cp .env.example .env.local
 Copiez le fichier `.env.example` vers `.env.local` :
 
 ```bash
-cp .env.example .env.local
 composer install
 ```
 
