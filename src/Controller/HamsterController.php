@@ -180,6 +180,29 @@ final class HamsterController extends AbstractController
         return new JsonResponse(['gold' => $user->getGold()], 200);
     }
 
+    #[Route('/hamster/sleep/{nbDays}', name: 'hamster_sleep', methods: ['POST'])]
+    public function sleep(int $nbDays): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return new JsonResponse(['error' => 'Non authentifié'], 401);
+        }
+
+        if ($nbDays <= 0) {
+            return new JsonResponse(['error' => 'Le nombre de jours doit être positif'], 400);
+        }
+
+        // Vieillir tous les hamsters de nbDays jours et leur faire perdre nbDays points de faim
+        foreach ($user->getHamsters() as $hamster) {
+            $hamster->setAge($hamster->getAge() + $nbDays);
+            $hamster->setHunger(max(0, $hamster->getHunger() - $nbDays));
+        }
+
+        $this->entityManager->flush();
+
+        return new JsonResponse(['message' => 'Tous les hamsters ont vieilli de ' . $nbDays . ' jours'], 200);
+    }
+
     private function ageAllHamsters(User $user): void
     {
         foreach ($user->getHamsters() as $hamster) {
