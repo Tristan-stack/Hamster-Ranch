@@ -11,31 +11,75 @@ API REST pour un jeu d'élevage de hamsters développée avec Symfony 7.3.
 
 ## Installation
 
+### 1. Installer les dépendances
+
 ```bash
-# 1. Installer les dépendances
 composer install
+```
 
-# 2. Configurer la base de données dans .env.local
+### 2. Configurer la base de données
+
+Créez un fichier `.env.local` et ajoutez :
+
+```bash
 DATABASE_URL="mysql://root:password@127.0.0.1:3306/hamsterranch?serverVersion=8.0.32&charset=utf8mb4"
+```
 
-# 3. Générer les clés JWT
+### 3. Générer les clés JWT
+
+```bash
 mkdir -p config/jwt
+```
+
+```bash
 openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096
+```
+
+```bash
 openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout
+```
 
-# Ajouter dans .env.local :
+Ajoutez dans `.env.local` :
+
+```bash
 JWT_PASSPHRASE=votre_passphrase_ici
+```
+
+```bash
 JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
+```
+
+```bash
 JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
+```
 
-# 4. Créer la base de données et charger les données
+### 4. Créer la base de données
+
+```bash
 php bin/console doctrine:database:create
-php bin/console doctrine:migrations:migrate
-php bin/console doctrine:fixtures:load
+```
 
-# 5. Lancer le serveur
+### 5. Exécuter les migrations
+
+```bash
+php bin/console doctrine:migrations:migrate
+```
+
+### 6. Charger les données de test
+
+```bash
+php bin/console doctrine:fixtures:load
+```
+
+### 7. Lancer le serveur
+
+```bash
 symfony server:start
-# ou
+```
+
+Ou avec PHP intégré :
+
+```bash
 php -S localhost:8000 -t public
 ```
 
