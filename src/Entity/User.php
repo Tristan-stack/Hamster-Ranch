@@ -40,7 +40,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, Hamster>
      */
-    #[ORM\OneToMany(targetEntity: Hamster::class, mappedBy: 'owner', cascade: ['persist'])]
+    #[ORM\OneToMany(targetEntity: Hamster::class, mappedBy: 'owner', cascade: ['persist', 'remove'])]
     #[Groups(['read'])]
     private Collection $hamsters;
 

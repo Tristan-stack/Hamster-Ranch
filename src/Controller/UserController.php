@@ -10,6 +10,7 @@ use App\Repository\UserRepository;
 use App\Service\UserService;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Doctrine\ORM\EntityManagerInterface;
 
 #[Route('/api', name: 'api_')]
 final class UserController extends AbstractController
@@ -17,7 +18,8 @@ final class UserController extends AbstractController
     public function __construct(
         private UserRepository $userRepository,
         private SerializerInterface $serializer,
-        private UserService $userService
+        private UserService $userService,
+        private EntityManagerInterface $entityManager
     ) {}
 
     #[Route('/users', name: 'users_list', methods: ['GET'])]
@@ -56,5 +58,37 @@ final class UserController extends AbstractController
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], 400);
         }
+    }
+
+    #[Route('/user', name: 'current_user', methods: ['GET'])]
+    public function getCurrentUser(): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user) {
+            return new JsonResponse(['error' => 'Non authentifié'], 401);
+        }
+
+        $json = $this->serializer->serialize($user, 'json', ['groups' => 'read']);
+        return new JsonResponse($json, 200, [], true);
+    }
+
+    #[Route('/delete/{id}', name: 'delete_user', methods: ['DELETE'])]
+    public function delete(int $id): JsonResponse
+    {
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            return new JsonResponse(['error' => 'Accès refusé. Admin uniquement.'], 403);
+        }
+
+        $user = $this->userRepository->find($id);
+
+        if (!$user) {
+            return new JsonResponse(['error' => 'Utilisateur non trouvé'], 404);
+        }
+
+        $this->entityManager->remove($user);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['message' => 'Utilisateur supprimé avec succès'], 200);
     }
 }
